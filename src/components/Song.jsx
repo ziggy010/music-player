@@ -28,4 +28,10 @@ const SongContainer = styled.div`
   h2 {
     padding: 3rem 1rem 1rem 1rem;
   }
+
+  @media screen and (max-width: 768px) {
+    img {
+      width: 50%;
+    }
+  }
 `;

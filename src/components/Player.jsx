@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
-const Player = ({ currentSong }) => {
+const Player = ({ currentSong, setCurrentSong, allSongs }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [songInfo, setSongInfo] = useState({
     currentTime: 0,
@@ -45,6 +45,27 @@ const Player = ({ currentSong }) => {
     setSongInfo({ ...songInfo, currentTime: e.target.value });
   }
 
+  function autoPlayHandler() {
+    if (isPlaying) {
+      audioRef.current.play();
+    }
+  }
+
+  function skipSongHandler(direction) {
+    const currentIndex = allSongs.findIndex((value) => {
+      return value.id === currentSong.id;
+    });
+    if (direction === "front") {
+      setCurrentSong(
+        allSongs[currentIndex === allSongs.length - 1 ? 0 : currentIndex + 1]
+      );
+    } else {
+      setCurrentSong(
+        allSongs[currentIndex === 0 ? allSongs.length - 1 : currentIndex - 1]
+      );
+    }
+  }
+
   return (
     <PlayerContainer>
       <div className="time-control">
@@ -58,20 +79,31 @@ const Player = ({ currentSong }) => {
           name=""
           id=""
         />
-        <p>{formatTime(songInfo.duration)}</p>
+        <p>{songInfo.duration ? formatTime(songInfo.duration) : "0:00"}</p>
       </div>
       <div className="player-control">
-        <FontAwesomeIcon icon={faAngleLeft} size="2x" />
+        <FontAwesomeIcon
+          onClick={() => skipSongHandler("back")}
+          icon={faAngleLeft}
+          size="2x"
+        />
         <FontAwesomeIcon
           onClick={playSongHandler}
           icon={isPlaying ? faPause : faPlay}
           size="2x"
         />
-        <FontAwesomeIcon icon={faAngleRight} size="2x" />
+        <FontAwesomeIcon
+          onClick={() => skipSongHandler("front")}
+          icon={faAngleRight}
+          size="2x"
+        />
       </div>
 
       <audio
         onTimeUpdate={updateTimeHandler}
+        onLoadedMetadata={updateTimeHandler}
+        onLoadedData={autoPlayHandler}
+        onEnded={() => skipSongHandler("front")}
         ref={audioRef}
         src={currentSong.audio}
       ></audio>
@@ -95,6 +127,14 @@ const PlayerContainer = styled.div`
 
     input {
       width: 100%;
+      -webkit-appearance: none;
+      background-color: #393053;
+      cursor: pointer;
+      border-radius: 10px;
+      height: 2px;
+      ::-webkit-slider-thumb {
+        color: white;
+      }
     }
 
     p {
@@ -110,6 +150,15 @@ const PlayerContainer = styled.div`
 
     svg {
       cursor: pointer;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .time-control {
+      width: 90%;
+    }
+    .player-control {
+      width: 50%;
     }
   }
 `;

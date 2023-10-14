@@ -1,9 +1,20 @@
 import React from "react";
 import styled from "styled-components";
 
-const LibrarySongs = ({ song }) => {
+const LibrarySongs = ({ song, currentSong, setCurrentSong, allSongs }) => {
+  function changeSongHandler() {
+    const selectedSong = allSongs.filter((value) => {
+      return value.id === song.id;
+    });
+
+    setCurrentSong(selectedSong[0]);
+  }
+
   return (
-    <LibrarySongContainer>
+    <LibrarySongContainer
+      onClick={changeSongHandler}
+      selected={song.id === currentSong.id}
+    >
       <img src={song.cover} alt={song.name} />
       <div className="song-info">
         <h3>{song.name}</h3>
@@ -20,6 +31,12 @@ const LibrarySongContainer = styled.div`
   align-items: center;
   padding: 2rem 1rem 1rem 2rem;
   cursor: pointer;
+  transition: background 0.5s ease;
+  background-color: ${(props) => (props.selected ? "#18122B" : "black")};
+
+  &:hover {
+    background: #393053;
+  }
 
   img {
     width: 25%;
